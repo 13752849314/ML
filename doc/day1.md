@@ -1,8 +1,30 @@
 # Day1 2022/06/11
 
+test
+
 <div align=center><img src="../image/hg.png" alt="test"/></div>
 
 $$
 \frac{1}{e}
 
 $$
+
+## 梯度下降法
+
+目标函数  $J(\theta_0,\theta_1)$
+
+$$
+min \quad J(\theta_0,\theta_1)
+
+$$
+
+Start with some $\theta_0,\theta_1$
+
+Keep changing $\theta_0,\theta_1$ to reduce $J(\theta_0,\theta_1)$ until we hopefully end up at minimum.
+
+$$
+\theta_j:=\theta_j-\alpha\frac{\partial}{\partial\theta_j}J(\theta_0,\theta_1) \quad (j=0,1)
+
+$$
+
+$\alpha$称为学习率
