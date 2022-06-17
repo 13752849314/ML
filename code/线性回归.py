@@ -4,11 +4,19 @@ class LinearRegression:
     parm1 = 1
     parm2 = 1
 
-    def __init__(self, x: list, y: list, rate=1):
+    def __init__(self, x: list, y: list, target=None, rate=1):
+        """
+        线性回归
+        :param x: 自变量
+        :param y: 因变量
+        :param target: 回归函数
+        :param rate: 学习率
+        """
         if len(x) == len(y):
             self.x = x
             self.y = y
             self.rate = rate
+            self.target = target
         else:
             raise ValueError("输入长度不一致！")
 
@@ -19,7 +27,10 @@ class LinearRegression:
         return [self.parm1, self.parm2]
 
     def _Target(self, x):
-        return self.parm1 * x + self.parm2
+        if self.target is None:
+            return self.parm1 * x + self.parm2
+        else:
+            return self.target(self.parm1, self.parm2, x)
 
     def _Penalty(self):
         m = len(self.x)
@@ -47,11 +58,15 @@ class LinearRegression:
         self.parm2 = parm2
 
     def predict(self, x):
-        return self.parm1 * x + self.parm2
+        return self._Target(x)
+
+
+def liner(parm1, parm2, x):
+    return parm1 * x + parm2
 
 
 if __name__ == '__main__':
-    ll = LinearRegression([1, 2, 3], [-1, -2, -3])
+    ll = LinearRegression([1, 2, 3], [4, 6, 8], target=liner)
     parm = ll.train()
     print(parm)
     print(ll.predict(11))
