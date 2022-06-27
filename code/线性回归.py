@@ -1,72 +1,117 @@
 # Linear regression
 # Created by 敖鸥 at 2022/06/11
-class LinearRegression:
-    parm1 = 1
-    parm2 = 1
+from typing import List, Any
 
-    def __init__(self, x: list, y: list, target=None, rate=1):
+
+class LinearRegression:
+    parm: List[Any] = []
+
+    def __init__(self, x: list, y: list, target=None, rate=1.0, parmN=2):
         """
         线性回归
         :param x: 自变量
         :param y: 因变量
         :param target: 回归函数
         :param rate: 学习率
+        :param parmN: 参数个数
         """
         if len(x) == len(y):
             self.x = x
             self.y = y
             self.rate = rate
             self.target = target
+            self.parmN = parmN
+            self.parm = [1 for _ in range(parmN)]
+            self.handler = [diff_liner1, diff_liner2]
         else:
             raise ValueError("输入长度不一致！")
 
-    def train(self, loop=500) -> list:
-        for i in range(loop):
-            self.parm1 = self.parm1 - self.rate * self._Parm1()
-            self.parm2 = self.parm2 - self.rate * self._Parm2()
-        return [self.parm1, self.parm2]
+    def train(self, loop=5000) -> list:
+        for j in range(loop):
+            temp = [i for i in self.parm]  # 用于同步更新参数
+            for i in range(self.parmN):
+                temp[i] = self.parm[i] - self.rate * self._main(self.handler[i])
+            for i in range(self.parmN):
+                self.parm[i] = temp[i]
+        return self.parm
+
+    def _main(self, handler):
+        n = len(self.x)
+        re = 0
+        for i in range(n):
+            re += handler(self.x[i], *self.parm) * (self._Target(self.x[i]) - self.y[i])
+        return re / n
 
     def _Target(self, x):
         if self.target is None:
-            return self.parm1 * x + self.parm2
+            return liner(x, *self.parm)
         else:
-            return self.target(self.parm1, self.parm2, x)
+            return self.target(x, *self.parm)
 
-    def _Penalty(self):
-        m = len(self.x)
-        J = 0.0
-        for i in range(m):
-            J += (self._Target(self.x[i]) - self.y[i]) ** 2
-        return J / (2 * m)
+    def set_parm(self, *parm):
+        if len(parm) >= self.parmN:
+            for i in range(self.parmN):
+                self.parm[i] = parm[i]
+        else:
+            raise ValueError("参数数目不足！")
 
-    def _Parm2(self):
-        m = len(self.x)
-        re = 0.0
-        for i in range(m):
-            re += self._Target(self.x[i]) - self.y[i]
-        return re / m
-
-    def _Parm1(self):
-        m = len(self.x)
-        re = 0.0
-        for i in range(m):
-            re += (self._Target(self.x[i]) - self.y[i]) * self.x[i]
-        return re / m
-
-    def set_parm(self, parm1, parm2):
-        self.parm1 = parm1
-        self.parm2 = parm2
+    def set_handler(self, *func):
+        if len(func) == self.parmN:
+            self.handler = []
+            for i in func:
+                self.handler.append(i)
+        else:
+            raise ValueError("参数数目不足！")
 
     def predict(self, x):
         return self._Target(x)
 
 
-def liner(parm1, parm2, x):
-    return parm1 * x + parm2
+def liner(x, *parm):
+    return parm[0] * x + parm[1]
+
+
+def diff_liner1(x, *parm):
+    return x
+
+
+def diff_liner2(x, *parm):
+    return 1
+
+
+def two(x, *parm):
+    return parm[0] * x * x + parm[1] * x + parm[2]
+
+
+def diff_two1(x, *parm):
+    return x * x
+
+
+def diff_two2(x, *parm):
+    return x
+
+
+def diff_two3(x, *parm):
+    return 1
+
+
+# test2
+def test2():
+    x = [i + 1 for i in range(5)]
+    y = [2 * i * i + 2 * i + 2 for i in x]
+    T = LinearRegression(x, y, target=two, rate=0.001, parmN=3)
+    T.set_handler(diff_two1, diff_two2, diff_two3)
+    # T.set_parm(1.5, 1.5, 1.5)
+    P = T.train(loop=100000)
+    print(P)
+    print(T.predict(7))
 
 
 if __name__ == '__main__':
-    ll = LinearRegression([1, 2, 3], [4, 6, 8], target=liner)
-    parm = ll.train()
-    print(parm)
-    print(ll.predict(11))
+    # test1
+    ll = LinearRegression([1, 2, 3, 4, 5],
+                          [4, 6, 8, 10, 12], rate=0.09)
+    parmP = ll.train(loop=10000)
+    print(parmP)
+    print(ll.predict(4))
+    test2()
