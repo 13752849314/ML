@@ -49,6 +49,11 @@ class LinearRegression:
             return self.target(x, *self.parm)
 
     def set_parm(self, *parm):
+        """
+        设置参数初始值
+        :param parm:
+        :return:
+        """
         if len(parm) >= self.parmN:
             for i in range(self.parmN):
                 self.parm[i] = parm[i]
@@ -56,6 +61,11 @@ class LinearRegression:
             raise ValueError("参数数目不足！")
 
     def set_handler(self, *func):
+        """
+        设置对各参数求导函数
+        :param func:
+        :return:
+        """
         if len(func) == self.parmN:
             self.handler = []
             for i in func:
